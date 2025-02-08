@@ -7,29 +7,43 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: api
+      app: api-overdrive  # Changed to unique label
   template:
     metadata:
       labels:
-        app: api
+        app: api-overdrive  # Unique label for overdrive pods
+        deployment: overdrive
     spec:
       affinity:
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values: ["api"]
-              topologyKey: "kubernetes.io/hostname"
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100  # Required for preferred anti-affinity
+              podAffinityTerm:  # Proper nesting
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values: ["api-overdrive"]  # Match the updated label
+                topologyKey: "kubernetes.io/hostname"
       containers:
         - name: api
           image: my-backend-project-app:latest
+          imagePullPolicy: Never
           env:
             - name: UV_THREADPOOL_SIZE
               value: "64"
             - name: NODE_OPTIONS
-              value: "--max-old-space-size=8192 --max-semi-space-size=512"
+              value: "--max-old-space-size=8192"
+            - name: MONGO_URI
+              value: "mongodb://host.docker.internal:27017/app"
+            - name: REDIS_URL
+              value: "redis://host.docker.internal:6379"
+            - name: JWT_SECRET
+              value: "your_jwt_secret_key"
+            - name: PORT
+              value: "3000"
+            - name: NODE_ENV
+              value: "development"
           lifecycle:
             preStop:
               exec:

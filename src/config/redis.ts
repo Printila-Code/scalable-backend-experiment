@@ -7,6 +7,6 @@ const redisClient = createClient({
 });
 
 // Connect using legacy mode – note that you should call .connect() after enabling legacy mode.
-redisClient.connect().catch(console.error);
+// redisClient.connect().catch(console.error);
 
 export default redisClient;

@@ -6,7 +6,9 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: api
+    app: api  # Or use "deployment: standard" if you update labels
+    # deployment: standard
+    # Add more specific labels if needed
   ports:
     - port: 3000
       targetPort: 3000
