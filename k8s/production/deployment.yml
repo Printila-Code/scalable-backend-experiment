@@ -1,0 +1,52 @@
+# k8s/production/deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - api
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: api
+          image: my-backend-project-app:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: UV_THREADPOOL_SIZE
+              value: "64"
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=8192"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 10"]
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5

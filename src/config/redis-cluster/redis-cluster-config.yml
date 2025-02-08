@@ -1,0 +1,11 @@
+# config/redis-cluster/redis-cluster-config.yml
+cluster:
+  nodes:
+    - host: redis-node1
+      port: 6379
+    - host: redis-node2
+      port: 6379
+    - host: redis-node3
+      port: 6379
+options:
+  scaleReads: "slave"

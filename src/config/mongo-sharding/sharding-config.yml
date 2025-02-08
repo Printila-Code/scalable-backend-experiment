@@ -1,0 +1,14 @@
+# config/mongo-sharding/sharding-config.yml
+shard:
+  - rs: rs0
+    members:
+      - host: mongo-shard01:27017
+        priority: 5
+      - host: mongo-shard02:27017
+      - host: mongo-shard03:27017
+chunkSize: 128MB
+balancer:
+  mode: full
+  activeWindow:
+    start: "02:00"
+    stop: "05:00"

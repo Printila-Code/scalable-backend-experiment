@@ -1,0 +1,43 @@
+# k8s/production/overdrive.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment-overdrive
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values: ["api"]
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: api
+          image: my-backend-project-app:latest
+          env:
+            - name: UV_THREADPOOL_SIZE
+              value: "64"
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=8192 --max-semi-space-size=512"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 10"]
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "1024Mi"

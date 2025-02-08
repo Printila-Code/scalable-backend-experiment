@@ -1,0 +1,20 @@
+# k8s/production/hpa.yml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-deployment
+  minReplicas: 3
+  maxReplicas: 50
+  metrics:
+    - type: Pods
+      pods:
+        metric:
+          name: custom_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: 5000  # Example: 5k RPS per pod
